@@ -1,2 +1,2 @@
-# ml_with_jax
-Machine Learning models and projects constructed using Jax Library
+# ml_from_scratch
+Machine Learning models Constructed from scratch using simple libraries
