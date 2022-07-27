@@ -48,14 +48,12 @@ def mse_loss(X, Y, w):
     return jnp.sum(Y - Y_hat)/Y.shape[0]
 
 
-def linear_reg(X, Y, epochs=10, lr=0.1):
+def linear_reg(X, Y):
     """Train linear regression model for given X and Y"""
-    key = random_key_init()  # Initialize random key for the JAX
     X_np = add_bias_into_matrices(X.values)  # Convert pd.DataFrame into np array
     # Convert labels to np array and add one more dim to mach sizes
     Y_np = jnp.expand_dims(Y.values, -1)
     w = jnp.dot(jnp.linalg.inv(jnp.dot(X_np.T,X_np)),jnp.dot(X_np.T,Y_np))
-    print(w.shape)
     mse = mse_loss(X_np, Y_np, w)  # Calculate the loss
     print('Linear Reg MSE error :', mse)
     Y_hat_linear_reg = linear_reg_pred(X_np, w)
@@ -65,4 +63,4 @@ def linear_reg(X, Y, epochs=10, lr=0.1):
 if __name__ == '__main__':
     task = 'regression'
     X, Y = laod_scikit_data(task) 
-    linear_reg(X, Y, epochs= 150, lr=1)
+    linear_reg(X, Y)
