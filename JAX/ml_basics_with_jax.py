@@ -17,10 +17,12 @@ def laod_scikit_data(task: str = 'regression'):
         return load_diabetes(return_X_y=True, as_frame=True)
 
 
-def plot_model(Y, Y_hat, W, b):
+def plot_model(Y, Y_hat, w):
     fig = plt.figure(figsize=(10,8))
     plt.scatter(range(Y.shape[0]), Y)
     plt.scatter(range(Y.shape[0]), Y_hat)
+    plt.legend(['True Values', 'Predictions'])
+    plt.title('Linear Regression Model Prediction')
     plt.show()
 
 
@@ -30,35 +32,34 @@ def random_key_init(key: int =42):
     return rnd_key
 
 
-def linear_reg_pred(X, W, b):
+def add_bias_into_matrices(X):
+    """Add initial column of ones to act as bias"""
+    return jnp.insert(X, 0, 1, axis=1)
+
+
+def linear_reg_pred(X, w):
     """Making prediction for each sample in the data"""
-    return jnp.dot(X,W) + b
+    return jnp.dot(X, w)
 
 
-def mse_loss(X, Y, W, b):
+def mse_loss(X, Y, w):
     """Calculating the MSE loss using true values and prediction"""
-    Y_hat = linear_reg_pred(X, W, b)
+    Y_hat = linear_reg_pred(X, w)
     return jnp.sum(Y - Y_hat)/Y.shape[0]
 
 
 def linear_reg(X, Y, epochs=10, lr=0.1):
     """Train linear regression model for given X and Y"""
     key = random_key_init()  # Initialize random key for the JAX
-    X_np = X.values  # Convert pd.DataFrame into np array
+    X_np = add_bias_into_matrices(X.values)  # Convert pd.DataFrame into np array
     # Convert labels to np array and add one more dim to mach sizes
     Y_np = jnp.expand_dims(Y.values, -1)
-    n, m = X_np.shape  # Dimensions of the data
-    W = random.normal(key, (m, 1))  # Initialize random weights
-    b = random.normal(key, (1, 1))  # Initialize bias
-    mse = mse_loss(X_np, Y_np, W, b)  # Calculate the loss
-    print('Base MSE error :', mse)
-    for e in range(epochs + 1):  # Iterate through epochs
-        # Update weights and bias using gradient descend
-        W -= lr * grad(mse_loss,argnums=2)(X_np, Y_np, W, b)
-        b -= lr * grad(mse_loss,argnums=3)(X_np, Y_np, W, b)
-        print('Epoch', e, ' ----> MSE:', mse_loss(X_np, Y_np, W, b))
-    Y_hat_final = linear_reg_pred(X_np, W, b)
-    plot_model(Y, Y_hat_final, W, b)
+    w = jnp.dot(jnp.linalg.inv(jnp.dot(X_np.T,X_np)),jnp.dot(X_np.T,Y_np))
+    print(w.shape)
+    mse = mse_loss(X_np, Y_np, w)  # Calculate the loss
+    print('Linear Reg MSE error :', mse)
+    Y_hat_linear_reg = linear_reg_pred(X_np, w)
+    plot_model(Y, Y_hat_linear_reg, w)
 
 
 if __name__ == '__main__':
