@@ -1,4 +1,5 @@
 using DataFrames
+using Plots
 using MLDatasets: BostonHousing, Iris
 
 
@@ -31,8 +32,11 @@ function linear_reg(X, Y)
     w = inv(X_with_bias' * X_with_bias) * (X_with_bias' * Y)
     mse = mse_loss(X_with_bias, y, w)
     println("Linear Regression MSE error : $mse")
+    return linear_reg_pred(X_with_bias, w), w
 end
 
-
+gr()
 X, y = load_dataset();
-linear_reg(X, y)
+y_hat, weights = linear_reg(X, y);
+plot(collect(1:size(y)[1]), y, seriestype = :scatter, title = "Linear Regression Result");
+plot!(collect(1:size(y)[1]), y_hat, seriestype = :scatter)

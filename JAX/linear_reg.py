@@ -58,6 +58,7 @@ def linear_reg(X, Y):
     print('Linear Reg MSE error :', mse)
     Y_hat_linear_reg = linear_reg_pred(X_np, w)
     plot_model(Y, Y_hat_linear_reg, w)
+    return Y_hat_linear_reg, w
 
 
 if __name__ == '__main__':
